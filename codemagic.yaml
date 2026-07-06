@@ -15,6 +15,11 @@ workflows:
           mkdir -p ios/App/App/public
           cp -r www/* ios/App/App/public/
           cp capacitor.config.json ios/App/App/capacitor.config.json
+      - name: Resolve SPM packages
+        script: |
+          xcodebuild -resolvePackageDependencies \
+            -project "$XCODE_PROJECT" \
+            -scheme "$XCODE_SCHEME"
       - name: Set up code signing (free Apple ID)
         script: |
           xcode-project use-profiles
