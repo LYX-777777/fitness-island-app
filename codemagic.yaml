@@ -1,0 +1,27 @@
+workflows:
+  fitness-island-ios:
+    name: 动森训练岛 iOS
+    max_build_duration: 30
+    environment:
+      vars:
+        XCODE_WORKSPACE: ios/App/App.xcworkspace
+        XCODE_SCHEME: App
+      node: 20
+    scripts:
+      - name: Install npm dependencies
+        script: npm ci
+      - name: Manual Capacitor sync
+        script: |
+          mkdir -p ios/App/App/public
+          cp -r www/* ios/App/App/public/
+          cp capacitor.config.json ios/App/App/capacitor.config.json
+      - name: Set up code signing (free Apple ID)
+        script: |
+          xcode-project use-profiles
+      - name: Build iOS
+        script: |
+          xcode-project build-ipa \
+            --workspace "$XCODE_WORKSPACE" \
+            --scheme "$XCODE_SCHEME"
+    artifacts:
+      - build/ios/ipa/*.ipa
