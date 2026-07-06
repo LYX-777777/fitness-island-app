@@ -1,0 +1,54 @@
+name: Build iOS
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Sync web assets to iOS
+        run: |
+          mkdir -p ios/App/App/public
+          cp -r www/* ios/App/App/public/
+          cp capacitor.config.json ios/App/App/capacitor.config.json
+
+      - name: Resolve SPM packages
+        run: |
+          xcodebuild -resolvePackageDependencies \
+            -project ios/App/App.xcodeproj \
+            -scheme App
+
+      - name: Build for iOS Simulator
+        run: |
+          xcodebuild \
+            -project ios/App/App.xcodeproj \
+            -scheme App \
+            -sdk iphonesimulator \
+            -configuration Release \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Package .app
+        run: |
+          APP=$(find build -name "App.app" -type d | head -1)
+          echo "Found: $APP"
+          cp -r "$APP" ./动森训练岛.app
+          zip -r 动森训练岛-Simulator.zip 动森训练岛.app
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fitness-island-simulator
+          path: 动森训练岛-Simulator.zip
