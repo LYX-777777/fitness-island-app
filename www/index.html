@@ -1,0 +1,261 @@
+<!--
+[INPUT]: 依赖 app.js 加载的 plan.json 训练路线、localStorage 状态、可选生产 assets/fonts 字体子集、assets/animal-island 原生背景/伙伴/光标资产和 styles.css 的滚动背景与 animal-island-ui 静态投影
+[OUTPUT]: 对外提供「动森训练岛」首页式标题、favicon、统一 hero-stage 舞台、Animal Loading 启动遮罩、打字机日程行、游戏提示语、hero-animal 伙伴层、今日进度条、零基础 30 天训练打卡入口、7 日路线、今日动作序列、黄色结算主按钮、导出入口、奖励式每日完成弹窗、周日复盘 Table、30 天全图 Collapse、本周交接导出弹窗、重置弹窗、Animal Modal clip-path、Footer sea 装饰与反馈容器
+[POS]: fitness-island/assets 的 canonical 页面目标，被 init_project.sh 复制到目标项目 index.html，把 animal-island-ui 设计系统和一屏一意图训练流投射为 HTML 骨架
+[PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
+-->
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="theme-color" content="#f7f1e3">
+    <title>动森训练岛</title>
+    <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="./styles.css?v=20260524-exercise-scale">
+  </head>
+  <body>
+    <div class="island-loading" id="islandLoading" role="status" aria-live="polite">
+      <div class="island-loading-stage">
+        <div class="island-loading-animal" aria-hidden="true"></div>
+        <p id="islandLoadingText">小岛载入中</p>
+        <div class="island-loading-bar" aria-hidden="true"><span></span></div>
+      </div>
+    </div>
+
+    <div class="onboarding-overlay" id="onboarding" hidden role="dialog" aria-modal="true" aria-label="运动习惯引导">
+      <div class="onboarding-card">
+        <div class="onboarding-animal" aria-hidden="true"></div>
+        <h2 class="onboarding-title">欢迎上岛</h2>
+        <p class="onboarding-sub">先回答几个问题，帮你设计合适的路线</p>
+        <div class="onboarding-steps" id="onboardingSteps">
+          <span class="onboarding-dot active"></span>
+          <span class="onboarding-dot"></span>
+          <span class="onboarding-dot"></span>
+          <span class="onboarding-dot"></span>
+        </div>
+        <h3 class="onboarding-question" id="onboardingQuestion"></h3>
+        <p class="onboarding-hint" id="onboardingHint"></p>
+        <div class="onboarding-options" id="onboardingOptions"></div>
+        <div class="onboarding-textarea-wrap" id="onboardingTextWrap" style="display:none">
+          <textarea id="onboardingText" rows="3" placeholder="例如：腰椎间盘突出、右肩旧伤、膝盖怕负重…"></textarea>
+        </div>
+        <div class="onboarding-actions">
+          <button type="button" id="onboardingPrev" class="onboarding-btn-secondary" style="display:none">‹ 上一题</button>
+          <button type="button" id="onboardingNext" class="onboarding-btn-primary">下一题 ›</button>
+        </div>
+      </div>
+    </div>
+
+    <svg class="animal-modal-defs" style="position:absolute;width:0;height:0" aria-hidden="true">
+      <defs>
+        <clipPath id="animal-modal-clip" clipPathUnits="objectBoundingBox">
+          <path d="M0.501,0.005 L0.501,0.005 L0.523,0.005 L0.549,0.006 C0.704,0.01,0.796,0.017,0.825,0.027 L0.827,0.028 C0.872,0.045,0.939,0.044,0.978,0.17 C1,0.254,1,0.365,0.99,0.505 L0.988,0.513 C0.979,0.558,0.971,0.598,0.965,0.633 C0.956,0.689,0.979,0.77,0.964,0.865 C0.953,0.928,0.921,0.966,0.869,0.979 C0.821,0.986,0.773,0.992,0.726,0.995 L0.712,0.996 L0.694,0.997 C0.648,1,0.586,1,0.507,1 L0.501,1 L0.464,1 C0.385,1,0.325,0.998,0.283,0.995 C0.234,0.992,0.184,0.987,0.133,0.979 C0.081,0.966,0.05,0.928,0.039,0.865 C0.023,0.77,0.047,0.689,0.037,0.633 C0.031,0.595,0.023,0.552,0.013,0.505 C-0.006,0.365,-0.002,0.254,0.024,0.17 C0.064,0.045,0.13,0.045,0.174,0.028 L0.175,0.028 C0.204,0.017,0.303,0.009,0.474,0.005 L0.501,0.005"></path>
+        </clipPath>
+      </defs>
+    </svg>
+    <main class="app-shell">
+      <header class="topbar" aria-label="今日训练">
+        <div class="week-plant" id="weekPlant" aria-hidden="true"></div>
+        <div class="hero-stage">
+          <h1 id="topTitle">动森训练岛</h1>
+          <p class="caption hero-meta" id="topMeta">第 1 天</p>
+          <p class="body-copy" id="topSummary">先散个步，再看身体愿不愿意多做一点。</p>
+          <div class="hero-animal" aria-hidden="true"></div>
+          <div class="hero-progress" aria-label="今日完成进度">
+            <span id="heroProgressFill"></span>
+            <strong id="heroProgressText">0/1</strong>
+          </div>
+        </div>
+        <button class="small-button top-copy-button" type="button" id="handoffTrigger" aria-label="导出记录给 Agent">导出</button>
+      </header>
+
+      <section class="route-card" aria-labelledby="weekTitle">
+        <div class="section-head">
+          <div>
+            <p class="caption" id="weekLabel">第 1 周</p>
+            <h2 id="weekTitle">这周路线</h2>
+          </div>
+          <p class="caption strong" id="weekSignal">路线全灰，亮一颗。</p>
+        </div>
+        <div class="week-route" id="weekRoute" aria-label="本周 7 日路线"></div>
+      </section>
+
+      <section class="route-card today-card" aria-labelledby="sequenceTitle">
+        <div class="section-head">
+          <div>
+            <p class="caption" id="phaseLabel">习惯启动</p>
+            <h2 id="sequenceTitle">今日顺序</h2>
+          </div>
+          <p class="caption strong" id="completionText">0/1</p>
+        </div>
+
+        <ol class="exercise-list" id="exerciseList"></ol>
+
+      </section>
+
+      <section class="complete-strip" aria-label="结算今日训练">
+        <button class="complete-button" id="completeDay" type="button">完成今天</button>
+      </section>
+
+      <section class="review-card" id="reviewPanel" aria-labelledby="reviewTitle" hidden>
+        <div class="section-head">
+          <div>
+            <p class="caption">周日回顾</p>
+            <h2 id="reviewTitle">这周交接</h2>
+          </div>
+          <button class="small-button" id="copyReview" type="button">导出</button>
+        </div>
+        <div class="review-stats" aria-label="本周训练摘要">
+          <div>
+            <span id="reviewAppear">0</span>
+            <small>出现</small>
+          </div>
+          <div>
+            <span id="reviewFull">0</span>
+            <small>完整</small>
+          </div>
+          <div>
+            <span id="reviewMinimum">0</span>
+            <small>兜底</small>
+          </div>
+        </div>
+        <div class="review-table-wrap" id="reviewTable" aria-label="本周复盘表格"></div>
+    </main>
+
+    <div class="animal-footer-sea" aria-hidden="true"></div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <div class="modal-backdrop" id="completeDialog" hidden>
+      <section class="modal-card complete-modal-card" role="dialog" aria-modal="true" aria-labelledby="completeTitle">
+        <div class="stamp-mark" aria-hidden="true">OK</div>
+        <h2 id="completeTitle">盖章啦</h2>
+        <div class="modal-actions single">
+          <button type="button" class="reward-button" id="closeComplete">收下</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="modal-backdrop" id="handoffDialog" hidden>
+      <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="handoffTitle">
+        <p class="caption">给 Agent</p>
+        <h2 id="handoffTitle">导出记录</h2>
+        <p class="body-copy">复制一段本周记录，贴回对话里让我更新下一周。空着就不写进 Markdown。</p>
+        <label class="field-label" for="painInput">
+          <span>疼痛 / 不适</span>
+          <textarea id="painInput" rows="3" autocomplete="off"></textarea>
+        </label>
+        <label class="field-label" for="resistanceInput">
+          <span>主要阻力</span>
+          <textarea id="resistanceInput" rows="3" autocomplete="off"></textarea>
+        </label>
+        <div class="modal-actions">
+          <button type="button" class="small-button ghost" id="cancelHandoff">取消</button>
+          <button type="button" class="small-button primary" id="copyHandoff">复制</button>
+        </div>
+        <button type="button" class="danger-link" id="openResetFromHandoff">重置本地记录</button>
+      </section>
+    </div>
+
+    <div class="modal-backdrop" id="resetDialog" hidden>
+      <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="resetTitle">
+        <p class="caption">重置</p>
+        <h2 id="resetTitle">从今天重新开始？</h2>
+        <p class="body-copy">这会清空本地完成记录，但不会改变训练计划。</p>
+        <div class="modal-actions">
+          <button type="button" class="small-button ghost" id="cancelReset">取消</button>
+          <button type="button" class="small-button danger" id="confirmReset">确认重置</button>
+        </div>
+      </section>
+    </div>
+
+    <nav class="floating-nav" id="floatingNav" aria-label="训练操作">
+      <button type="button" id="navPrev" aria-label="前一天">‹</button>
+      <button class="nav-fab" type="button" id="navComplete" aria-label="完成今天">✓</button>
+      <button type="button" id="navNext" aria-label="后一天">›</button>
+    </nav>
+
+    <!-- 我的 页面 -->
+    <div class="mine-view" id="mineView" style="display:none">
+      <div class="mine-profile-card">
+        <div class="mine-profile-header">
+          <div class="mine-avatar" aria-hidden="true"></div>
+          <div>
+            <h2 class="mine-profile-title">我的训练档案</h2>
+            <p class="mine-profile-sub" id="mineStartDate"></p>
+          </div>
+        </div>
+        <div class="mine-profile-grid" id="mineProfileGrid"></div>
+      </div>
+
+      <section class="mine-section">
+        <h3 class="mine-section-title">30 天全图</h3>
+        <div class="mine-calendar-grid" id="mineCalendarGrid"></div>
+      </section>
+
+      <section class="mine-section">
+        <h3 class="mine-section-title">训练计划</h3>
+        <button type="button" class="mine-action-btn" id="mineCustomizeBtn">
+          <span class="mine-action-icon">✨</span>
+          <span class="mine-action-copy">
+            <span class="mine-action-label">重新定制训练计划</span>
+            <span class="mine-action-desc">文字描述你的新需求，如换动作、改时长、调节奏</span>
+          </span>
+        </button>
+        <button type="button" class="mine-action-btn danger" id="mineResetBtn">
+          <span class="mine-action-icon">🔄</span>
+          <span class="mine-action-copy">
+            <span class="mine-action-label">重置本地记录</span>
+            <span class="mine-action-desc">清空完成记录，从第一天重新开始</span>
+          </span>
+        </button>
+      </section>
+    </div>
+
+    <!-- 定制计划弹窗 -->
+    <div class="modal-backdrop" id="customizeDialog" hidden>
+      <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="customizeTitle">
+        <p class="caption">定制计划</p>
+        <h2 id="customizeTitle">描述你的新需求</h2>
+        <p class="body-copy">告诉我你现在的训练需求变化，比如换了场地、时间变了、想换动作。越具体越好。</p>
+        <label class="field-label" for="customizeInput">
+          <span>你的新需求</span>
+          <textarea id="customizeInput" rows="4" autocomplete="off" placeholder="例如：我现在改在家里练了，有弹力带和瑜伽垫，每天只有15分钟，膝盖不太好不能深蹲…"></textarea>
+        </label>
+        <div class="modal-actions">
+          <button type="button" class="small-button ghost" id="cancelCustomize">取消</button>
+          <button type="button" class="small-button primary" id="copyCustomize">重新生成计划</button>
+        </div>
+        <p class="customize-hint" id="customizeHint" style="display:none"></p>
+      </section>
+    </div>
+
+    <!-- 计划预览弹窗 -->
+    <div class="modal-backdrop" id="previewDialog" hidden>
+      <section class="modal-card preview-card" role="dialog" aria-modal="true" aria-labelledby="previewTitle">
+        <p class="caption">新计划预览</p>
+        <h2 id="previewTitle">你的新训练路线</h2>
+        <div class="preview-body" id="previewContent"></div>
+        <div class="modal-actions">
+          <button type="button" class="small-button ghost" id="closePreview">取消</button>
+          <button type="button" class="small-button primary" id="confirmPlan">确认使用</button>
+        </div>
+      </section>
+    </div>
+
+    <!-- 底部 Tab 栏 -->
+    <nav class="tab-bar" aria-label="主导航">
+      <button type="button" class="tab-btn active" id="tabTrainingBtn" aria-pressed="true">
+        <span class="tab-icon">🏝️</span>
+        <span class="tab-label">训练</span>
+      </button>
+      <button type="button" class="tab-btn" id="tabMineBtn" aria-pressed="false">
+        <span class="tab-icon">👤</span>
+        <span class="tab-label">我的</span>
+      </button>
+    </nav>
+
+    <script src="./app.js?v=20260524-rounded-font"></script>
+  </body>
+</html>

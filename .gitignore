@@ -1,0 +1,8 @@
+node_modules/
+ios/App/build/
+ios/App/Pods/
+ios/DerivedData/
+.cache/
+*.log
+.DS_Store
+Thumbs.db
