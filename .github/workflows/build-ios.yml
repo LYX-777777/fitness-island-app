@@ -21,36 +21,31 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync ios
 
-      - name: Build iOS
+      - name: Build iOS (Simulator)
         run: |
           cd ios/App
           xcodebuild \
             -workspace App.xcworkspace \
             -scheme App \
-            -sdk iphoneos \
+            -sdk iphonesimulator \
             -configuration Release \
             -derivedDataPath build \
-            CODE_SIGN_IDENTITY="-" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO \
-            DEVELOPMENT_TEAM="" \
-            ONLY_ACTIVE_ARCH=NO
-        continue-on-error: true
+            -destination "generic/platform=iOS Simulator" \
+            CODE_SIGNING_ALLOWED=NO
 
       - name: Find .app
         id: find
         run: |
-          APP=$(find ios/App/build -name "*.app" -type d | head -1)
+          APP=$(find ios/App/build -name "App.app" -type d | head -1)
           echo "Found: $APP"
           echo "app_path=$APP" >> $GITHUB_OUTPUT
 
-      - name: Package .ipa
+      - name: Package .app
         run: |
-          mkdir Payload
-          cp -r "${{ steps.find.outputs.app_path }}" Payload/
-          zip -r 动森训练岛.ipa Payload
+          cp -r "${{ steps.find.outputs.app_path }}" ./动森训练岛.app
+          zip -r 动森训练岛-Simulator.zip 动森训练岛.app
 
       - uses: actions/upload-artifact@v4
         with:
-          name: fitness-island-ios
-          path: 动森训练岛.ipa
+          name: fitness-island-simulator
+          path: 动森训练岛-Simulator.zip
