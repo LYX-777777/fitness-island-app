@@ -1,4 +1,4 @@
-const CACHE = "fitness-island-v2";
+const CACHE = "fitness-island-v3";
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
