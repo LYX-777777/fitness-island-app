@@ -25,12 +25,6 @@ jobs:
           cp -r www/* ios/App/App/public/
           cp capacitor.config.json ios/App/App/capacitor.config.json
 
-      - name: Resolve SPM packages
-        run: |
-          xcodebuild -resolvePackageDependencies \
-            -project ios/App/App.xcodeproj \
-            -scheme App
-
       - name: Build for iOS Simulator
         run: |
           xcodebuild \
@@ -39,7 +33,11 @@ jobs:
             -sdk iphonesimulator \
             -configuration Release \
             -derivedDataPath build \
-            CODE_SIGNING_ALLOWED=NO
+            CODE_SIGNING_ALLOWED=NO 2>&1 | tee build.log
+
+      - name: Show errors (if any)
+        if: failure()
+        run: grep -i "error:" build.log | head -30 || echo "No error: patterns found"
 
       - name: Package .app
         run: |
