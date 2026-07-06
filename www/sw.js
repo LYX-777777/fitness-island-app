@@ -10,6 +10,8 @@ self.addEventListener("install", (event) => {
         "./plan.json",
         "./manifest.json",
         "./assets/favicon.svg",
+        "./assets/apple-touch-icon.png",
+        "./assets/icon-512.png",
         "./assets/animal-island/animal-icon.png",
         "./assets/animal-island/home-bg.webp",
         "./assets/animal-island/footer-sea.svg",

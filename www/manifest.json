@@ -9,7 +9,7 @@
   "theme_color": "#19c8b9",
   "icons": [
     {
-      "src": "./assets/animal-island/animal-icon.png",
+      "src": "./assets/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
