@@ -1,4 +1,4 @@
-<!--
+11<!--
 [INPUT]: 依赖 app.js 加载的 plan.json 训练路线、localStorage 状态、可选生产 assets/fonts 字体子集、assets/animal-island 原生背景/伙伴/光标资产和 styles.css 的滚动背景与 animal-island-ui 静态投影
 [OUTPUT]: 对外提供「动森训练岛」首页式标题、favicon、统一 hero-stage 舞台、Animal Loading 启动遮罩、打字机日程行、游戏提示语、hero-animal 伙伴层、今日进度条、零基础 30 天训练打卡入口、7 日路线、今日动作序列、黄色结算主按钮、导出入口、奖励式每日完成弹窗、周日复盘 Table、30 天全图 Collapse、本周交接导出弹窗、重置弹窗、Animal Modal clip-path、Footer sea 装饰与反馈容器
 [POS]: fitness-island/assets 的 canonical 页面目标，被 init_project.sh 复制到目标项目 index.html，把 animal-island-ui 设计系统和一屏一意图训练流投射为 HTML 骨架
@@ -9,7 +9,11 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <meta name="theme-color" content="#f7f1e3">
+    <meta name="theme-color" content="#19c8b9">
+    <link rel="manifest" href="./manifest.json">
+    <link rel="apple-touch-icon" href="./assets/animal-island/animal-icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>动森训练岛</title>
     <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="./styles.css?v=20260524-exercise-scale">
@@ -257,5 +261,10 @@
     </nav>
 
     <script src="./app.js?v=20260524-rounded-font"></script>
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("./sw.js");
+      }
+    </script>
   </body>
 </html>
