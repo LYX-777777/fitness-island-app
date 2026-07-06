@@ -2,12 +2,17 @@
   "name": "动森训练岛",
   "short_name": "训练岛",
   "description": "动森风格运动习惯养成打卡页",
-  "start_url": "./index.html",
+  "start_url": "/fitness-island-app/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#f7f1e3",
   "theme_color": "#19c8b9",
   "icons": [
+    {
+      "src": "./assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
     {
       "src": "./assets/icon-512.png",
       "sizes": "512x512",

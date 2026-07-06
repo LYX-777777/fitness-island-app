@@ -1,4 +1,4 @@
-const CACHE = "fitness-island-v3";
+const CACHE = "fitness-island-v4";
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -11,6 +11,7 @@ self.addEventListener("install", (event) => {
         "./manifest.json",
         "./assets/favicon.svg",
         "./assets/apple-touch-icon.png",
+        "./assets/icon-192.png",
         "./assets/icon-512.png",
         "./assets/animal-island/animal-icon.png",
         "./assets/animal-island/home-bg.webp",
