@@ -24,6 +24,11 @@ jobs:
           cp -r www/* ios/App/App/public/
           cp capacitor.config.json ios/App/App/capacitor.config.json
 
+      - name: Resolve Swift Package Dependencies
+        run: |
+          cd ios/App
+          xcodebuild -resolvePackageDependencies -workspace App.xcworkspace -scheme App
+
       - name: Build iOS (Simulator)
         run: |
           cd ios/App
@@ -33,11 +38,14 @@ jobs:
             -sdk iphonesimulator \
             -configuration Release \
             -derivedDataPath build \
-            CODE_SIGNING_ALLOWED=NO
+            -skipPackagePluginValidation \
+            -skipMacroValidation \
+            CODE_SIGNING_ALLOWED=NO 2>&1 | tail -50
 
       - name: Find .app
         id: find
         run: |
+          find ios/App/build -name "*.app" -type d
           APP=$(find ios/App/build -name "App.app" -type d | head -1)
           echo "Found: $APP"
           echo "app_path=$APP" >> $GITHUB_OUTPUT
