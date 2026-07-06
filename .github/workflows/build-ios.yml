@@ -18,8 +18,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Sync Capacitor
-        run: npx cap sync ios
+      - name: Manual Capacitor sync
+        run: |
+          mkdir -p ios/App/App/public
+          cp -r www/* ios/App/App/public/
+          cp capacitor.config.json ios/App/App/capacitor.config.json
 
       - name: Build iOS (Simulator)
         run: |
@@ -30,7 +33,6 @@ jobs:
             -sdk iphonesimulator \
             -configuration Release \
             -derivedDataPath build \
-            -destination "generic/platform=iOS Simulator" \
             CODE_SIGNING_ALLOWED=NO
 
       - name: Find .app
