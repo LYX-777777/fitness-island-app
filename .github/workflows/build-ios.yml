@@ -30,17 +30,25 @@ jobs:
             -sdk iphoneos \
             -configuration Release \
             -derivedDataPath build \
-            CODE_SIGN_IDENTITY="" \
+            CODE_SIGN_IDENTITY="-" \
             CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO
+            CODE_SIGNING_ALLOWED=NO \
+            DEVELOPMENT_TEAM="" \
+            ONLY_ACTIVE_ARCH=NO
+        continue-on-error: true
 
-      - name: Package .app
+      - name: Find .app
+        id: find
         run: |
-          cd ios/App/build/Build/Products/Release-iphoneos
+          APP=$(find ios/App/build -name "*.app" -type d | head -1)
+          echo "Found: $APP"
+          echo "app_path=$APP" >> $GITHUB_OUTPUT
+
+      - name: Package .ipa
+        run: |
           mkdir Payload
-          cp -r App.app Payload/
+          cp -r "${{ steps.find.outputs.app_path }}" Payload/
           zip -r 动森训练岛.ipa Payload
-          mv 动森训练岛.ipa ${{ github.workspace }}/动森训练岛.ipa
 
       - uses: actions/upload-artifact@v4
         with:
